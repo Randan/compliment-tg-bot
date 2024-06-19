@@ -15,15 +15,17 @@ jobs:
     - name: Install PM2
       run: npm install pm2 -g
 
-    - name: Deploy to VPS
+    - name: Deploy to RP5
       uses: appleboy/ssh-action@v0.1.7
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        password: ${{ secrets.PASSWORD }}
         port: ${{ secrets.PORT }}
         script: |
-          cd /root/projects/compliment-tg-bot
+          cd /home/randan/projects/compliment-tg-bot
           git pull origin master
+          export NVM_DIR=~/.nvm
+          source ~/.nvm/nvm.sh
           npm install
           pm2 restart compliment-tg-bot
