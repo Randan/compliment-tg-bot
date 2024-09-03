@@ -38,7 +38,7 @@ const sendComplimentAndFlowerToAllUsers = async (): Promise<void> => {
         : bot.sendMessage(user.telegramId, compliment.value);
     });
 
-    notifyAdmin(lib.allUsersGotCompliment());
+    // notifyAdmin(lib.allUsersGotCompliment());
   } catch (err: unknown) {
     handleError(JSON.stringify(err));
   }
