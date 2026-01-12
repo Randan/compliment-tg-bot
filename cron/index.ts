@@ -4,9 +4,13 @@ import { sendComplimentAndFlowerToAllUsers } from '../controllers';
 
 const cronOptions = {
   scheduled: true,
-  timezone: process.env.TIMEZONE
+  timezone: process.env.TIMEZONE,
 };
 
-cron.schedule('0 10 * * *', () => {
-  sendComplimentAndFlowerToAllUsers();
-}, cronOptions);
+cron.schedule(
+  '0 10 * * *',
+  () => {
+    sendComplimentAndFlowerToAllUsers();
+  },
+  cronOptions,
+);

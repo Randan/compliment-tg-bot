@@ -1,4 +1,4 @@
-import { Message } from 'node-telegram-bot-api';
+import type { Message } from 'node-telegram-bot-api';
 import bot from '../bot';
 import {
   addCompliment,
@@ -25,7 +25,7 @@ const events: Record<string, RegExp> = {
   getPhoto: /\/getPhoto/,
 };
 
-bot.onText(events.help, (msg: Message): void => help(msg));
+bot.onText(events.help, (msg: Message): Promise<void> => help(msg));
 
 bot.onText(events.start, (msg: Message): Promise<void> => addUser(msg));
 
@@ -39,20 +39,8 @@ bot.onText(events.addCompliment, (msg: Message): Promise<void> => addCompliment(
 
 bot.onText(events.getPhoto, (msg: Message): void => getPhotoFromQuery(msg));
 
-bot.onText(
-  events.flower,
-  (msg: Message): Promise<void> =>
-    sendPhotoFromStock(msg, 'flower', lib.thereIsFlower())
-);
+bot.onText(events.flower, (msg: Message): Promise<void> => sendPhotoFromStock(msg, 'flower', lib.thereIsFlower()));
 
-bot.onText(
-  events.cat,
-  (msg: Message): Promise<void> =>
-    sendPhotoFromStock(msg, 'cat', lib.thereIsCat())
-);
+bot.onText(events.cat, (msg: Message): Promise<void> => sendPhotoFromStock(msg, 'cat', lib.thereIsCat()));
 
-bot.onText(
-  events.dog,
-  (msg: Message): Promise<void> =>
-    sendPhotoFromStock(msg, 'dog', lib.thereIsDog())
-);
+bot.onText(events.dog, (msg: Message): Promise<void> => sendPhotoFromStock(msg, 'dog', lib.thereIsDog()));

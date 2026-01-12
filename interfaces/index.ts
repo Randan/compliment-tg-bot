@@ -13,7 +13,7 @@ interface IUnsplashUrls {
   large: string;
   regular: string;
   raw: string;
-  small: string
+  small: string;
 }
 
 interface IUnsplashUser {

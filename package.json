@@ -8,8 +8,8 @@
     "build": "npx tsc",
     "start": "npx tsc && node ./dist/index.js",
     "start:dev": "npx tsc && concurrently \"npx tsc --watch\" \"nodemon -q ./dist/index.js\"",
-    "lint": "eslint",
-    "lint:fix": "eslint --fix"
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix"
   },
   "keywords": [],
   "author": "",
@@ -36,6 +36,7 @@
     "eslint-config-standard": "^17.0.0",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-n": "^15.2.0",
+    "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-promise": "^6.0.0",
     "install": "^0.13.0",
     "nodemon": "^2.0.16",

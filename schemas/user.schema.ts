@@ -1,18 +1,18 @@
 import mongoose, { Schema } from 'mongoose';
 import { dbUsersCollection } from '../utils';
-import { IUser } from '../interfaces';
+import type { IUser } from '../interfaces';
 
 const userSchema = new Schema<IUser>({
   telegramId: Number,
   firstName: String,
   lastName: {
     type: String,
-    default: undefined
+    default: undefined,
   },
   userName: {
     type: String,
-    default: undefined
-  }
+    default: undefined,
+  },
 });
 
 const Users = mongoose.model(dbUsersCollection, userSchema);

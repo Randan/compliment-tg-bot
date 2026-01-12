@@ -1,9 +1,7 @@
-import mongoose from 'mongoose';
-import { Message } from 'node-telegram-bot-api';
-import bot from '../bot';
-import { dbMongooseUri, handleError, lib, notifyAdmin } from '../utils';
+import type { Message } from 'node-telegram-bot-api';
+import { botHelpers, handleError, lib } from '../utils';
 import { Compliments } from '../schemas';
-import { ICompliment } from '../interfaces';
+import type { ICompliment } from '../interfaces';
 
 const addCompliment = async (msg: Message): Promise<void> => {
   if (!msg.from) return;
@@ -13,14 +11,12 @@ const addCompliment = async (msg: Message): Promise<void> => {
   const complimentText: string = msg.text?.replace('/add', '').trim() || '';
 
   try {
-    mongoose.connect(dbMongooseUri);
-
     const compliment: ICompliment | null = await Compliments.findOne({
       value: complimentText,
     });
 
     if (compliment) {
-      bot.sendMessage(id, lib.complimentExists());
+      await botHelpers.sendMessageSafely(id, lib.complimentExists());
       return;
     }
 
@@ -29,11 +25,10 @@ const addCompliment = async (msg: Message): Promise<void> => {
     });
 
     if (addedComplimentResponse) {
-      bot.sendMessage(id, lib.complimentAccepted());
-      notifyAdmin(lib.complimentAcceptedNotify(msg, complimentText));
+      await botHelpers.sendMessageSafely(id, lib.complimentAccepted());
     }
   } catch (err: unknown) {
-    handleError(JSON.stringify(err));
+    handleError('Failed to add compliment', err);
   }
 };
 

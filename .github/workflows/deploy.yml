@@ -15,6 +15,12 @@ jobs:
     - name: Install PM2
       run: npm install pm2 -g
 
+    - name: Connect to Tailscale
+      run: |
+        curl -fsSL https://tailscale.com/install.sh | sh
+        sudo tailscale up --authkey=${{ secrets.TS_AUTHKEY }} --accept-routes=false --accept-dns=false
+        tailscale status
+
     - name: Deploy to RP5
       uses: appleboy/ssh-action@v0.1.7
       with:
@@ -22,10 +28,14 @@ jobs:
         username: ${{ secrets.USERNAME }}
         password: ${{ secrets.PASSWORD }}
         port: ${{ secrets.PORT }}
+        command_timeout: 10m
         script: |
           cd /home/randan/projects/compliment-tg-bot
           git pull origin master
           export NVM_DIR=~/.nvm
           source ~/.nvm/nvm.sh
-          npm install
-          pm2 restart compliment-tg-bot
+          npm ci
+          npm run build
+          pm2 delete compliment-tg-bot 2>/dev/null || true
+          pm2 start npm --name "compliment-tg-bot" -- start
+          pm2 save

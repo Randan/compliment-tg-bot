@@ -1,21 +1,19 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios from 'axios';
 import { handleError, unsplashAppToken, unsplashUri } from '../utils';
-import { IUnsplashResponse } from '../interfaces';
+import type { IUnsplashResponse } from '../interfaces';
 
 type RequestMethod = 'get' | 'post' | 'put' | 'delete';
 
 const unsplashInstance: AxiosInstance = axios.create({
-  baseURL: unsplashUri
+  baseURL: unsplashUri,
 });
 
 const additionalUrls: Record<string, string> = {
-  randomPhoto: '/photos/random'
+  randomPhoto: '/photos/random',
 };
 
-const addParams = (
-  url: string,
-  params: Record<string, string | number> = {}
-) => {
+const addParams = (url: string, params: Record<string, string | number> = {}) => {
   if (Object.keys(params).length) {
     return `${url}?${Object.keys(params)
       .map(key => `${key}=${params[key]}`)
@@ -25,7 +23,7 @@ const addParams = (
   }
 };
 
-const makeRequest = (method: RequestMethod, url: string, ...params: any) => {
+const makeRequest = (method: RequestMethod, url: string, ...params: [AxiosRequestConfig?]) => {
   switch (method) {
     case 'get':
       return unsplashInstance.get(`${url}`, ...params);
@@ -35,14 +33,15 @@ const makeRequest = (method: RequestMethod, url: string, ...params: any) => {
       return unsplashInstance.put(`${url}`, ...params);
     case 'delete':
       return unsplashInstance.delete(`${url}`, ...params);
+    default:
+      throw new Error(`Unsupported request method: ${method}`);
   }
 };
 
-const request = (method: RequestMethod, url: string) => {
-  return (...params: any) => {
-    return makeRequest(method, url, ...params);
-  };
-};
+const request =
+  (method: RequestMethod, url: string) =>
+  (...params: [AxiosRequestConfig?]) =>
+    makeRequest(method, url, ...params);
 
 unsplashInstance.interceptors.request.use(async (config: AxiosRequestConfig) => {
   if (unsplashAppToken) {
@@ -56,19 +55,17 @@ unsplashInstance.interceptors.request.use(async (config: AxiosRequestConfig) => 
 
 unsplashInstance.interceptors.response.use(
   (response: AxiosResponse) => response,
-  (reject: any) => {
-    handleError(JSON.stringify(reject));
+  (reject: unknown) => {
+    handleError('Unsplash API request failed', reject);
 
     return reject;
-  }
+  },
 );
 
-export const getPhoto = (
-  query: string
-): Promise<AxiosResponse<IUnsplashResponse, void>> =>
+export const getPhoto = (query: string): Promise<AxiosResponse<IUnsplashResponse, void>> =>
   request(
     'get',
     addParams(unsplashUri + additionalUrls.randomPhoto, {
-      query
-    })
+      query,
+    }),
   )();

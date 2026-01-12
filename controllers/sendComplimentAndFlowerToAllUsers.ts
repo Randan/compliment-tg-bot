@@ -1,15 +1,11 @@
-import mongoose from 'mongoose';
-import { AxiosResponse } from 'axios';
-import bot from '../bot';
+import type { AxiosResponse } from 'axios';
 import { getPhoto } from '../api';
-import { dbMongooseUri, handleError, lib, notifyAdmin } from '../utils';
+import { botHelpers, handleError } from '../utils';
 import { Compliments, Users } from '../schemas';
-import { ICompliment, IUnsplashResponse, IUser } from '../interfaces';
+import type { ICompliment, IUnsplashResponse, IUser } from '../interfaces';
 
 const sendComplimentAndFlowerToAllUsers = async (): Promise<void> => {
   try {
-    mongoose.connect(dbMongooseUri);
-
     const complimentsCount = await Compliments.countDocuments({});
 
     if (!complimentsCount) return;
@@ -20,27 +16,37 @@ const sendComplimentAndFlowerToAllUsers = async (): Promise<void> => {
 
     if (!users || !users.length) return;
 
-    const compliment: ICompliment | null = await Compliments.findOne({}).skip(
-      random
-    );
+    const compliment: ICompliment | null = await Compliments.findOne({}).skip(random);
 
     if (!compliment) return;
 
-    const flowerPhoto: AxiosResponse<IUnsplashResponse> = await getPhoto(
-      'flower'
-    );
+    const flowerPhoto: AxiosResponse<IUnsplashResponse> = await getPhoto('flower');
 
-    users.forEach((user: IUser): void => {
-      flowerPhoto
-        ? bot.sendPhoto(user.telegramId, flowerPhoto.data.urls.regular, {
-          caption: compliment.value,
-        })
-        : bot.sendMessage(user.telegramId, compliment.value);
+    // Send messages to all users and handle blocked users
+    // For proactive messages, remove blocked users from database
+    const sendPromises = users.map(async (user: IUser): Promise<void> => {
+      try {
+        if (flowerPhoto) {
+          await botHelpers.sendPhotoSafely(user.telegramId, flowerPhoto.data.urls.regular, {
+            caption: compliment.value,
+            removeOnBlock: true,
+          });
+        } else {
+          await botHelpers.sendMessageSafely(user.telegramId, compliment.value, { removeOnBlock: true });
+        }
+      } catch (err: unknown) {
+        // Individual user errors are already handled in sendMessageSafely/sendPhotoSafely
+        // Only log if it's not a blocking error
+        const error = err as { response?: { body?: { error_code?: number } } };
+        if (error.response?.body?.error_code !== 403 && error.response?.body?.error_code !== 400) {
+          console.error(`Failed to send to user ${user.telegramId}:`, err);
+        }
+      }
     });
 
-    // notifyAdmin(lib.allUsersGotCompliment());
+    await Promise.allSettled(sendPromises);
   } catch (err: unknown) {
-    handleError(JSON.stringify(err));
+    handleError('Failed to send compliment and flower to all users', err);
   }
 };
 

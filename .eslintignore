@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+dist/
+
+# Build outputs
+*.js
+*.js.map
+*.d.ts
+
+# Config files
+.eslintrc.js
+.prettierrc.json
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
