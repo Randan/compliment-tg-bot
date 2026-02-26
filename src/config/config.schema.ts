@@ -25,10 +25,14 @@ function requireKey(config: Record<string, unknown>, key: string): string {
 }
 
 function encodePasswordInUrl(url: string): string {
-  if (!url) return '';
+  if (!url) {
+    return '';
+  }
   const mongoUrlPattern = /^(mongodb\+srv:\/\/)([^:]+):([^@]+)@(.+)$/;
   const match = url.match(mongoUrlPattern);
-  if (!match) return url;
+  if (!match) {
+    return url;
+  }
   const [, protocol, username, password, rest] = match;
   const isEncoded = password.includes('%');
   const specialChars = /[@#%&+=\s]/;
@@ -40,7 +44,9 @@ function encodePasswordInUrl(url: string): string {
 }
 
 function buildMongoUri(url: string): string {
-  if (!url) return '';
+  if (!url) {
+    return '';
+  }
   const urlWithEncodedPassword = encodePasswordInUrl(url);
   const hasParams = urlWithEncodedPassword.includes('?');
   const separator = hasParams ? '&' : '?';
@@ -48,9 +54,7 @@ function buildMongoUri(url: string): string {
   return `${urlWithEncodedPassword}${separator}${options}`;
 }
 
-export function configValidationSchema(
-  config: Record<string, unknown>,
-): EnvConfig {
+export function configValidationSchema(config: Record<string, unknown>): EnvConfig {
   const port = Number(get(config, 'PORT'));
   const portFinal = Number.isNaN(port) || port <= 0 ? 3000 : port;
 

@@ -1,11 +1,13 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import type { OnModuleInit } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import type { ConfigService } from '@nestjs/config';
+import type { LoggerService } from '@randan/tg-logger';
 import * as cron from 'node-cron';
-import { ComplimentService } from './compliment.service';
-import { UserService } from './user.service';
-import { UnsplashService } from './unsplash.service';
-import { ComplimentBotService } from './compliment-bot.service';
-import { LoggerService } from '../common/logger/logger.service';
+
+import type { ComplimentService } from './compliment.service';
+import type { ComplimentBotService } from './compliment-bot.service';
+import type { UnsplashService } from './unsplash.service';
+import type { UserService } from './user.service';
 
 @Injectable()
 export class ComplimentCronService implements OnModuleInit {
@@ -20,24 +22,26 @@ export class ComplimentCronService implements OnModuleInit {
 
   onModuleInit(): void {
     const timeZone = this.config.get<string>('TIMEZONE') || 'Europe/Kyiv';
-    cron.schedule(
-      '0 10 * * *',
-      () => this.sendComplimentAndFlowerToAllUsers(),
-      { timezone: timeZone },
-    );
+    cron.schedule('0 10 * * *', () => this.sendComplimentAndFlowerToAllUsers(), { timezone: timeZone });
     this.logger.log('Compliment daily cron registered (10:00)', { timeZone });
   }
 
   async sendComplimentAndFlowerToAllUsers(): Promise<void> {
     try {
       const count = await this.complimentService.count();
-      if (!count) return;
+      if (!count) {
+        return;
+      }
 
       const users = await this.userService.findAll();
-      if (!users.length) return;
+      if (!users.length) {
+        return;
+      }
 
       const compliment = await this.complimentService.findRandom();
-      if (!compliment) return;
+      if (!compliment) {
+        return;
+      }
 
       let photoUrl: string | null = null;
       try {
@@ -47,7 +51,7 @@ export class ComplimentCronService implements OnModuleInit {
         // continue without photo
       }
 
-      const sendPromises = users.map(async (user) => {
+      const sendPromises = users.map(async user => {
         try {
           if (photoUrl) {
             await this.botService.sendPhotoSafely(user.telegramId, photoUrl, {

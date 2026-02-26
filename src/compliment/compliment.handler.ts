@@ -1,11 +1,12 @@
+import type { LoggerService } from '@randan/tg-logger';
 import { Command, Ctx, Update } from 'nestjs-telegraf';
-import { Context } from 'telegraf';
-import { UserService } from './user.service';
-import { ComplimentService } from './compliment.service';
-import { UnsplashService } from './unsplash.service';
-import { ComplimentBotService } from './compliment-bot.service';
-import { ComplimentCronService } from './compliment-cron.service';
-import { LoggerService } from '../common/logger/logger.service';
+import type { Context } from 'telegraf';
+
+import type { ComplimentService } from './compliment.service';
+import type { ComplimentBotService } from './compliment-bot.service';
+import type { ComplimentCronService } from './compliment-cron.service';
+import type { UnsplashService } from './unsplash.service';
+import type { UserService } from './user.service';
 
 const HELP_TEXT =
   'Вітаю! Мене звати ComplimentBot.\n\n' +
@@ -32,7 +33,9 @@ export class ComplimentHandler {
   @Command('help')
   async help(@Ctx() ctx: Context): Promise<void> {
     const chatId = ctx.chat?.id;
-    if (!chatId) return;
+    if (!chatId) {
+      return;
+    }
     await this.botService.sendMessageSafely(chatId, HELP_TEXT);
   }
 
@@ -40,7 +43,9 @@ export class ComplimentHandler {
   async start(@Ctx() ctx: Context): Promise<void> {
     const from = ctx.from;
     const chatId = ctx.chat?.id;
-    if (!from || !chatId) return;
+    if (!from || !chatId) {
+      return;
+    }
 
     const { id, first_name, last_name, username } = from;
     try {
@@ -66,7 +71,9 @@ export class ComplimentHandler {
   async stop(@Ctx() ctx: Context): Promise<void> {
     const from = ctx.from;
     const chatId = ctx.chat?.id;
-    if (!from || !chatId) return;
+    if (!from || !chatId) {
+      return;
+    }
 
     const { id, first_name } = from;
     try {
@@ -77,10 +84,7 @@ export class ComplimentHandler {
           `Ну що, ${first_name}! Будемо досвіданькатись? Мені було добре з тобою, приходь ще =)`,
         );
       } else {
-        await this.botService.sendMessageSafely(
-          chatId,
-          'Ми з вами не знайомі. Давайте познайомимось. Напишіть /start',
-        );
+        await this.botService.sendMessageSafely(chatId, 'Ми з вами не знайомі. Давайте познайомимось. Напишіть /start');
       }
     } catch (err) {
       this.logger.error('Failed to remove user', err);
@@ -91,16 +95,15 @@ export class ComplimentHandler {
   async compliment(@Ctx() ctx: Context): Promise<void> {
     const from = ctx.from;
     const chatId = ctx.chat?.id;
-    if (!from || !chatId) return;
+    if (!from || !chatId) {
+      return;
+    }
 
     const { id } = from;
     try {
       const user = await this.userService.findByTelegramId(id);
       if (!user) {
-        await this.botService.sendMessageSafely(
-          chatId,
-          'Ми з вами не знайомі. Давайте познайомимось. Напишіть /start',
-        );
+        await this.botService.sendMessageSafely(chatId, 'Ми з вами не знайомі. Давайте познайомимось. Напишіть /start');
         return;
       }
       const compliment = await this.complimentService.findRandom();
@@ -113,7 +116,7 @@ export class ComplimentHandler {
   }
 
   @Command('toAll')
-  async toAll(@Ctx() ctx: Context): Promise<void> {
+  async toAll(@Ctx() _ctx: Context): Promise<void> {
     await this.cronService.sendComplimentAndFlowerToAllUsers();
   }
 
@@ -121,22 +124,20 @@ export class ComplimentHandler {
   async add(@Ctx() ctx: Context): Promise<void> {
     const from = ctx.from;
     const chatId = ctx.chat?.id;
-    if (!from || !chatId) return;
+    if (!from || !chatId) {
+      return;
+    }
 
     const msg = ctx.message;
-    const text =
-      msg && 'text' in msg && typeof msg.text === 'string'
-        ? msg.text.replace(/\/add\s*/, '').trim()
-        : '';
-    if (!text) return;
+    const text = msg && 'text' in msg && typeof msg.text === 'string' ? msg.text.replace(/\/add\s*/, '').trim() : '';
+    if (!text) {
+      return;
+    }
 
     try {
       const existing = await this.complimentService.findByValue(text);
       if (existing) {
-        await this.botService.sendMessageSafely(
-          chatId,
-          'А такий вже є, придумай інший ¯\\_(ツ)_/¯',
-        );
+        await this.botService.sendMessageSafely(chatId, 'А такий вже є, придумай інший ¯\\_(ツ)_/¯');
         return;
       }
       await this.complimentService.add(text);
@@ -146,11 +147,7 @@ export class ComplimentHandler {
     }
   }
 
-  async sendPhotoFromStock(
-    chatId: number,
-    query: string,
-    caption?: string,
-  ): Promise<void> {
+  async sendPhotoFromStock(chatId: number, query: string, caption?: string): Promise<void> {
     try {
       const photo = await this.unsplashService.getPhoto(query);
       if (photo?.urls?.regular) {
@@ -167,14 +164,13 @@ export class ComplimentHandler {
   async flower(@Ctx() ctx: Context): Promise<void> {
     const from = ctx.from;
     const chatId = ctx.chat?.id;
-    if (!from || !chatId) return;
+    if (!from || !chatId) {
+      return;
+    }
 
     const user = await this.userService.findByTelegramId(from.id);
     if (!user) {
-      await this.botService.sendMessageSafely(
-        chatId,
-        'Ми з вами не знайомі. Давайте познайомимось. Напишіть /start',
-      );
+      await this.botService.sendMessageSafely(chatId, 'Ми з вами не знайомі. Давайте познайомимось. Напишіть /start');
       return;
     }
     await this.sendPhotoFromStock(chatId, 'flower', 'Тримай квіточку');
@@ -184,14 +180,13 @@ export class ComplimentHandler {
   async cat(@Ctx() ctx: Context): Promise<void> {
     const from = ctx.from;
     const chatId = ctx.chat?.id;
-    if (!from || !chatId) return;
+    if (!from || !chatId) {
+      return;
+    }
 
     const user = await this.userService.findByTelegramId(from.id);
     if (!user) {
-      await this.botService.sendMessageSafely(
-        chatId,
-        'Ми з вами не знайомі. Давайте познайомимось. Напишіть /start',
-      );
+      await this.botService.sendMessageSafely(chatId, 'Ми з вами не знайомі. Давайте познайомимось. Напишіть /start');
       return;
     }
     await this.sendPhotoFromStock(chatId, 'cat', 'Тримай котика');
@@ -201,14 +196,13 @@ export class ComplimentHandler {
   async dog(@Ctx() ctx: Context): Promise<void> {
     const from = ctx.from;
     const chatId = ctx.chat?.id;
-    if (!from || !chatId) return;
+    if (!from || !chatId) {
+      return;
+    }
 
     const user = await this.userService.findByTelegramId(from.id);
     if (!user) {
-      await this.botService.sendMessageSafely(
-        chatId,
-        'Ми з вами не знайомі. Давайте познайомимось. Напишіть /start',
-      );
+      await this.botService.sendMessageSafely(chatId, 'Ми з вами не знайомі. Давайте познайомимось. Напишіть /start');
       return;
     }
     await this.sendPhotoFromStock(chatId, 'dog', 'Тримай песика');
@@ -218,21 +212,20 @@ export class ComplimentHandler {
   async getPhoto(@Ctx() ctx: Context): Promise<void> {
     const from = ctx.from;
     const chatId = ctx.chat?.id;
-    if (!from || !chatId) return;
+    if (!from || !chatId) {
+      return;
+    }
 
     const msg = ctx.message;
     const text =
-      msg && 'text' in msg && typeof msg.text === 'string'
-        ? msg.text.replace(/\/getPhoto\s*/, '').trim()
-        : '';
-    if (!text) return;
+      msg && 'text' in msg && typeof msg.text === 'string' ? msg.text.replace(/\/getPhoto\s*/, '').trim() : '';
+    if (!text) {
+      return;
+    }
 
     const user = await this.userService.findByTelegramId(from.id);
     if (!user) {
-      await this.botService.sendMessageSafely(
-        chatId,
-        'Ми з вами не знайомі. Давайте познайомимось. Напишіть /start',
-      );
+      await this.botService.sendMessageSafely(chatId, 'Ми з вами не знайомі. Давайте познайомимось. Напишіть /start');
       return;
     }
     await this.sendPhotoFromStock(chatId, text);

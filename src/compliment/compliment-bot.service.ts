@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectBot } from 'nestjs-telegraf';
-import { Telegraf } from 'telegraf';
-import { UserService } from './user.service';
+import type { Telegraf } from 'telegraf';
+
+import type { UserService } from './user.service';
 
 @Injectable()
 export class ComplimentBotService {

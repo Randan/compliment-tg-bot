@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { LoggerService } from '../common/logger/logger.service';
-import axios, { AxiosInstance } from 'axios';
+import type { ConfigService } from '@nestjs/config';
+import type { LoggerService } from '@randan/tg-logger';
+import type { AxiosInstance } from 'axios';
+import axios from 'axios';
 
 export interface UnsplashUrls {
   large: string;
@@ -30,7 +31,7 @@ export class UnsplashService {
     const baseURL = this.config.get<string>('UNSPLASH_URI');
     const token = this.config.get<string>('UNSPLASH_ACCESS_KEY');
     this.client = axios.create({ baseURL });
-    this.client.interceptors.request.use((cfg) => {
+    this.client.interceptors.request.use(cfg => {
       if (token) {
         cfg.headers = cfg.headers || {};
         cfg.headers.Authorization = `Client-ID ${token}`;
@@ -38,8 +39,8 @@ export class UnsplashService {
       return cfg;
     });
     this.client.interceptors.response.use(
-      (r) => r,
-      (err) => {
+      r => r,
+      err => {
         this.logger.error('Unsplash API request failed', err);
         return Promise.reject(err);
       },
@@ -47,10 +48,7 @@ export class UnsplashService {
   }
 
   async getPhoto(query: string): Promise<UnsplashResponse> {
-    const { data } = await this.client.get<UnsplashResponse>(
-      '/photos/random',
-      { params: { query } },
-    );
+    const { data } = await this.client.get<UnsplashResponse>('/photos/random', { params: { query } });
     return data;
   }
 }

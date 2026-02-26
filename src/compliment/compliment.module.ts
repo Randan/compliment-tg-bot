@@ -1,14 +1,15 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { User, UserSchema } from './schemas/user.schema';
-import { ComplimentDoc, ComplimentSchema } from './schemas/compliment.schema';
-import { UserService } from './user.service';
+
+import { ComplimentHandler } from './compliment.handler';
 import { ComplimentService } from './compliment.service';
-import { UnsplashService } from './unsplash.service';
 import { ComplimentBotService } from './compliment-bot.service';
 import { ComplimentCronService } from './compliment-cron.service';
-import { ComplimentHandler } from './compliment.handler';
+import { ComplimentDoc, ComplimentSchema } from './schemas/compliment.schema';
+import { User, UserSchema } from './schemas/user.schema';
+import { UnsplashService } from './unsplash.service';
+import { UserService } from './user.service';
 
 @Module({
   imports: [
@@ -28,10 +29,7 @@ import { ComplimentHandler } from './compliment.handler';
         imports: [ConfigModule],
         useFactory: (config: ConfigService) => {
           const schema = ComplimentSchema;
-          schema.set(
-            'collection',
-            config.get<string>('DB_COMPLIMENTS_COLLECTION'),
-          );
+          schema.set('collection', config.get<string>('DB_COMPLIMENTS_COLLECTION'));
           return schema;
         },
         inject: [ConfigService],
