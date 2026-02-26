@@ -1,13 +1,13 @@
 import type { OnModuleInit } from '@nestjs/common';
 import { Injectable } from '@nestjs/common';
-import type { ConfigService } from '@nestjs/config';
-import type { LoggerService } from '@randan/tg-logger';
+import { ConfigService } from '@nestjs/config';
+import { LoggerService } from '@randan/tg-logger';
 import * as cron from 'node-cron';
 
-import type { ComplimentService } from './compliment.service';
-import type { ComplimentBotService } from './compliment-bot.service';
-import type { UnsplashService } from './unsplash.service';
-import type { UserService } from './user.service';
+import { ComplimentService } from './compliment.service';
+import { ComplimentBotService } from './compliment-bot.service';
+import { UnsplashService } from './unsplash.service';
+import { UserService } from './user.service';
 
 @Injectable()
 export class ComplimentCronService implements OnModuleInit {

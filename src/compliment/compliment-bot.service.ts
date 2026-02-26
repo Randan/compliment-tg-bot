@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectBot } from 'nestjs-telegraf';
 import type { Telegraf } from 'telegraf';
 
-import type { UserService } from './user.service';
+import { UserService } from './user.service';
 
 @Injectable()
 export class ComplimentBotService {

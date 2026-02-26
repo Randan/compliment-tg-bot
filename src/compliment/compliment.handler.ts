@@ -1,12 +1,12 @@
-import type { LoggerService } from '@randan/tg-logger';
+import { LoggerService } from '@randan/tg-logger';
 import { Command, Ctx, Update } from 'nestjs-telegraf';
 import type { Context } from 'telegraf';
 
-import type { ComplimentService } from './compliment.service';
-import type { ComplimentBotService } from './compliment-bot.service';
-import type { ComplimentCronService } from './compliment-cron.service';
-import type { UnsplashService } from './unsplash.service';
-import type { UserService } from './user.service';
+import { ComplimentService } from './compliment.service';
+import { ComplimentBotService } from './compliment-bot.service';
+import { ComplimentCronService } from './compliment-cron.service';
+import { UnsplashService } from './unsplash.service';
+import { UserService } from './user.service';
 
 const HELP_TEXT =
   'Вітаю! Мене звати ComplimentBot.\n\n' +

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import type { ConfigService } from '@nestjs/config';
-import type { LoggerService } from '@randan/tg-logger';
+import { ConfigService } from '@nestjs/config';
+import { LoggerService } from '@randan/tg-logger';
 import type { AxiosInstance } from 'axios';
 import axios from 'axios';
 
